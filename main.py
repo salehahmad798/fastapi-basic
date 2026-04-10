@@ -1,3 +1,12 @@
-import fastapi
+from fastapi import FastAPI 
 
-print(fastapi.__version__)
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+    return "welcome to the fastapi.. "
+
+@app.get("/contact")
+def contact():
+    return "you can contact us any time"    
