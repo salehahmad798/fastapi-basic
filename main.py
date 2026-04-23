@@ -1,6 +1,8 @@
 from fastapi import FastAPI 
 from mockData import products
 
+from dtos import ProductDTO
+
 app = FastAPI()
 
 
@@ -21,9 +23,14 @@ def get_products():
 # A path parameter is embedded directly in the URL. 
 # You declare it with {} in the route string, and FastAPI automatically passes it to your function:
 
-# @app.get("/products/{product_id}")
-# def get_product(product_id: int):
-#     return {"product_id": product_id}
+@app.get("/products/{product_id}")
+def get_one_product(product_id: int):
+    for oneProduct in products:
+        if oneProduct.get("id") == product_id:
+            return oneProduct
+    return {
+        "error":"Product on Found for this ID"
+    }
     
 
 
@@ -117,3 +124,45 @@ def get_products():
 
 # @app.get("/products/{product_id}")
 # def get_product(product_id: int): 
+
+
+## we sent the data clinet to server using three way :
+## 1 - body
+## 2 - params query / path
+#  3 - hearder
+# 
+#  
+@app.post("/create_product")
+
+def create_product(product_data:ProductDTO):
+      ## product_data convert into the dictory form using the method off model_dump
+    product_data = product_data.model_dump()
+    products.append(product_data)
+
+    print(product_data)            
+    return {
+        "status":"product has been created successfully!",
+        "data": products
+    }
+
+
+@app.put("/update_product/{product_id}")
+def update_product(product_data:ProductDTO , product_id:int):
+    
+    for index, oneProduct in enumerate(products):
+        if oneProduct.get("id")==product_id:
+            products[index]=product_data.model_dump()
+            return {"status":"product update successfully!","product":product_data}
+
+    return {"status":"product not found this ID",}        
+
+@app.delete("/delete_product/{product_id}")
+def delete_product(product_id:int):
+
+    for index , oneProduct in enumerate(products):
+        if oneProduct.get("id")==product_id:
+            deleted_product = products.pop(index)
+            return {"status":"product delete successfully!","product":deleted_product}
+
+    return {"status":"product not found this ID",}        
+            
